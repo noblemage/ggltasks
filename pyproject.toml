@@ -8,7 +8,7 @@ version = "0.1.7"
 description = "TUI for Google Tasks"
 readme = "README.md"
 authors = [
-    {name = "noble", email = "noblegithub@poptortpop.anonaddy.me"},
+    {name = "Noble Alex", email = "noblejosephalex@gmail.com"},
 ]
 license = {text = "MIT"}
 classifiers = [
@@ -25,9 +25,8 @@ dependencies = [
 ]
 
 [project.scripts]
-ggltasks = "tasks_tui.main:cli"
+ggltasks = "ggltasks.main:cli"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["tasks_tui"]
-
+include = ["ggltasks"]

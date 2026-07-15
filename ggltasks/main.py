@@ -83,6 +83,7 @@ class AppState:
         self.parent_task_id_stack = []
         self.parent_task_idx_stack = []
         self.tasks = self.get_tasks_for_active_list()
+        self.tasks_due_today = self.service.get_tasks_due_today()
         self.calculate_task_counts()
         self.show_help = False
 
@@ -115,8 +116,12 @@ class AppState:
 
     def refresh_data(self):
         self.task_lists = self.service.get_task_lists()
+        if not self.active_list_id and self.task_lists:
+            self.active_list_id = self.task_lists[0]['id']
+            self.service.active_list_id = self.active_list_id
         self.filtered_tasks_cache.clear()
         self.tasks = self.get_tasks_for_active_list()
+        self.tasks_due_today = self.service.get_tasks_due_today()
         self.calculate_task_counts()
 
     def change_active_list(self, list_id):
@@ -154,13 +159,25 @@ def handle_input(stdscr, app_state, ui_manager):
     elif key == KEY_UP or key == ord('k'):
         if ui_manager.active_panel == 'tasks':
             ui_manager.update_task_selection(app_state.tasks, -1)
+        elif ui_manager.active_panel == 'due_today':
+            if ui_manager.selected_due_today_idx == 0:
+                ui_manager.active_panel = 'lists'
+                ui_manager.selected_list_idx = len(app_state.task_lists) - 1
+            else:
+                ui_manager.update_due_today_selection(app_state.tasks_due_today, -1)
         elif ui_manager.active_panel == 'lists':
             ui_manager.update_list_selection(app_state.task_lists, -1)
     elif key == KEY_DOWN or key == ord('j'):
         if ui_manager.active_panel == 'tasks':
             ui_manager.update_task_selection(app_state.tasks, 1)
         elif ui_manager.active_panel == 'lists':
-            ui_manager.update_list_selection(app_state.task_lists, 1)
+            if ui_manager.selected_list_idx == len(app_state.task_lists) - 1 and app_state.tasks_due_today:
+                ui_manager.active_panel = 'due_today'
+                ui_manager.selected_due_today_idx = 0
+            else:
+                ui_manager.update_list_selection(app_state.task_lists, 1)
+        elif ui_manager.active_panel == 'due_today':
+            ui_manager.update_due_today_selection(app_state.tasks_due_today, 1)
     elif key == KEY_LEFT or key == ord('h'):
         if app_state.viewing_completed_tasks:
             app_state.viewing_completed_tasks = False
@@ -174,7 +191,21 @@ def handle_input(stdscr, app_state, ui_manager):
         elif ui_manager.active_panel == 'tasks':
             ui_manager.toggle_panel()
     elif key == KEY_RIGHT or key == ord('l'):
-        if ui_manager.active_panel == 'lists':
+        if ui_manager.active_panel == 'due_today' and app_state.tasks_due_today:
+            selected_task = app_state.tasks_due_today[ui_manager.selected_due_today_idx]
+            target_list_id = selected_task.get('_list_id')
+            if target_list_id:
+                if app_state.active_list_id != target_list_id:
+                    app_state.change_active_list(target_list_id)
+                # Find the index of the task in the active list
+                task_idx = 0
+                for i, t in enumerate(app_state.tasks):
+                    if t['id'] == selected_task['id']:
+                        task_idx = i
+                        break
+                ui_manager.selected_task_idx = task_idx
+                ui_manager.active_panel = 'tasks'
+        elif ui_manager.active_panel == 'lists':
             selected_list = app_state.task_lists[ui_manager.selected_list_idx]
             if app_state.active_list_id != selected_list['id']:
                 app_state.change_active_list(selected_list["id"])
@@ -220,7 +251,7 @@ def handle_input(stdscr, app_state, ui_manager):
         if ui_manager.active_panel == 'tasks' and app_state.tasks:
             selected_task = app_state.tasks[ui_manager.selected_task_idx]
             if not selected_task.get("is_button"):
-                new_date = ui_manager.get_user_input("Due Date: ")
+                new_date = ui_manager.get_user_input("Due Date: ", example="2026-12-25 14:30")
                 if is_valid_date(new_date):
                     app_state.service.change_date_task(app_state.active_list_id, selected_task['id'], new_date)
                     app_state.refresh_data()
@@ -233,11 +264,41 @@ def handle_input(stdscr, app_state, ui_manager):
             if not selected_task.get("is_button"):
                 open_editor_for_task_notes(stdscr, app_state, ui_manager)
 
+    elif key == ord('K'):
+        if ui_manager.active_panel == 'tasks' and app_state.tasks and ui_manager.selected_task_idx > 0:
+            task = app_state.tasks[ui_manager.selected_task_idx]
+            if not task.get('is_button'):
+                if ui_manager.selected_task_idx == 1:
+                    prev_id = None
+                else:
+                    prev_id = app_state.tasks[ui_manager.selected_task_idx - 2]['id']
+                app_state.service.move_task(app_state.active_list_id, task['id'], previous_id=prev_id, parent_id=task.get('parent'))
+                app_state.refresh_data()
+                ui_manager.selected_task_idx -= 1
+
+    elif key == ord('J'):
+        if ui_manager.active_panel == 'tasks' and app_state.tasks and ui_manager.selected_task_idx < len(app_state.tasks) - 1:
+            task = app_state.tasks[ui_manager.selected_task_idx]
+            if not task.get('is_button'):
+                next_task = app_state.tasks[ui_manager.selected_task_idx + 1]
+                if not next_task.get('is_button'):
+                    app_state.service.move_task(app_state.active_list_id, task['id'], previous_id=next_task['id'], parent_id=task.get('parent'))
+                    app_state.refresh_data()
+                    ui_manager.selected_task_idx += 1
+
+    elif key == ord('X'):
+        if ui_manager.active_panel == 'tasks':
+            confirm = ui_manager.get_confirm_keypress("Clear all completed tasks?")
+            if confirm.lower() == 'y':
+                app_state.service.clear_completed_tasks(app_state.active_list_id)
+                app_state.refresh_data()
+                ui_manager.selected_task_idx = 0
+
     elif key == ord('d'):
         if ui_manager.active_panel == 'tasks' and app_state.tasks:
             selected_task = app_state.tasks[ui_manager.selected_task_idx]
             if not selected_task.get("is_button"):
-                confirm = ui_manager.get_user_input(f"Delete '{selected_task['title'][:30]}'? (y/n): ")
+                confirm = ui_manager.get_confirm_keypress(f"Delete '{selected_task['title'][:30]}'?")
                 if confirm.lower() == 'y':
                     app_state.task_buffer = app_state.service.get_task(app_state.active_list_id, selected_task['id'])
                     app_state.service.delete_task(app_state.active_list_id, selected_task["id"])
@@ -246,7 +307,7 @@ def handle_input(stdscr, app_state, ui_manager):
                         ui_manager.selected_task_idx = len(app_state.tasks) - 1
         elif ui_manager.active_panel == 'lists' and app_state.task_lists:
             selected_list = app_state.task_lists[ui_manager.selected_list_idx]
-            confirm = ui_manager.get_user_input(f"Delete list '{selected_list['title']}'? (y/n): ")
+            confirm = ui_manager.get_confirm_keypress(f"Delete list '{selected_list['title']}'?")
             if confirm.lower() == 'y':
                 app_state.list_buffer = selected_list['title']
                 app_state.service.delete_list(selected_list["id"])
@@ -303,7 +364,20 @@ def handle_input(stdscr, app_state, ui_manager):
         _trigger_background_sync(app_state.service, ui_manager)
 
     return True
+def _run_initial_sync(service, result_queue):
+    try:
+        service.sync_from_google()
+        result_queue.put(('ok', None))
+    except Exception as exc:
+        result_queue.put(('err', str(exc)))
 
+def _trigger_initial_sync(service, ui_manager):
+    ui_manager.start_sync_animation()
+    threading.Thread(
+        target=_run_initial_sync,
+        args=(service, _sync_result_queue),
+        daemon=True,
+    ).start()
 
 def main_loop(stdscr):
     task_service = TaskService()
@@ -315,9 +389,7 @@ def main_loop(stdscr):
     halfdelay(2)
     keypad(stdscr, True)
 
-    ui_manager.start_sync_animation()
-    app_state.service.sync_from_google()
-    ui_manager.stop_sync_animation()
+    _trigger_initial_sync(app_state.service, ui_manager)
     app_state.refresh_data()
 
     running = True
@@ -352,7 +424,8 @@ def main_loop(stdscr):
                 parent_task=parent_task,
                 parent_ids=parent_ids,
                 children_counts=children_counts,
-                viewing_completed_tasks=app_state.viewing_completed_tasks
+                viewing_completed_tasks=app_state.viewing_completed_tasks,
+                tasks_due_today=app_state.tasks_due_today
             )
         except Exception as e:
             ui_manager.show_temporary_message(f"Error: {e}")

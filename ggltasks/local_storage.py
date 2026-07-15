@@ -2,12 +2,12 @@ import os
 import json
 
 HOME_DIR = os.path.expanduser('~')
-GTASK_DIR = os.path.join(HOME_DIR, '.gtask')
-STORAGE_FILE = os.path.join(GTASK_DIR, 'local_tasks.json')
+GGLTASKS_DIR = os.path.join(HOME_DIR, '.ggltasks')
+STORAGE_FILE = os.path.join(GGLTASKS_DIR, 'local_tasks.json')
 
 
 def _ensure_dir_exists():
-    os.makedirs(GTASK_DIR, exist_ok=True)
+    os.makedirs(GGLTASKS_DIR, exist_ok=True)
 
 
 def load_data():

@@ -1,93 +1,84 @@
-# ggltakss - Google Tasks TUI
+# ggltasks - Google Tasks TUI
 
-A simple, fast, and intuitive Terminal User Interface (TUI) for Google Tasks.
+A lightning-fast, robust TUI for Google Tasks, built for terminal power users.
 
 ## Features
 
-*   View your Google Tasks directly in the terminal
-*   Add new tasks and lists.
-*   Mark tasks as complete.
-*   Rename tasks and lists.
-*   Switch between your task lists.
-*   Add due dates, notes, or subtasks
-*   Vim-style keybindings for navigation.
+* **Async UI**: Network requests are threaded. The app boots instantly and never freezes.
+* **Native Sync**: Moves, completions, and deletions flawlessly sync with the official Google backend.
+* **Smart Timestamps**: Due dates and "Last Updated" timestamps.
+* **Vim Navigation**: Navigate entirely using `h/j/k/l`.
 
 ## Screenshots
-<img width="1365" height="742" alt="image" src="https://github.com/user-attachments/assets/4c51a8ba-eac3-4a02-ab62-060d91150941" />
 
-
+<img width="1496" height="951" alt="Image" src="https://github.com/user-attachments/assets/81a03c40-e630-4dbf-b736-c24c8b818b81" />
 
 ## Installation
 
-1.  **Install via pip:**
+Google requires you to generate a personal "Client Secret" to access your data securely.
 
-    ```bash
-    pip install tasks-tui-app
-    ```
+### Step 1: Get Google API Credentials
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
+2. Create a **New Project** (e.g., `ggltasks-cli`).
+3. Search for **Google Tasks API** and click **Enable**.
+4. Go to **APIs & Services → Credentials**.
+5. Click **+ CREATE CREDENTIALS** → **OAuth client ID**. *(Choose "Desktop app" as the Application type).*
+6. Download the JSON file and rename it exactly to `client_secrets.json`.
 
-2.  **Clone the repository (optional, for development):**
-
-    ```bash
-    git clone https://github.com/your-username/Gtask.git
-    cd Gtask
-    ```
-
-3.  **Install the dependencies (if cloning for development):**
-
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-4.  **Enable the Google Tasks API [Guide](https://developers.google.com/workspace/tasks/quickstart/python)**
-
-    *   Go to the [Google API Console](https://console.developers.google.com/).
-    *   Create a new project.
-    *   Enable the **Google Tasks API** for your project.
-    *   Create an **OAuth 2.0 Client ID** for a **Desktop application**.
-    *   Download the JSON file and rename it to `client_secrets.json`.
-    *   Place the `client_secrets.json` file in the ~/.gtask.
+### Step 2: Install the App
+1. Create a hidden config folder:
+   ```bash
+   mkdir ~/.ggltasks
+   ```
+2. Move your `client_secrets.json` file into `~/.ggltasks`.
+3. Install via pip:
+   ```bash
+   pip install ggltasks
+   ```
+4. Run the app:
+   ```bash
+   ggltasks
+   ```
+*Note: The first time you run it, a browser window will pop up asking you to log in to your Google Account. A local token is saved so you only have to do this once.*
 
 ## Usage
 
-To run the application, use the following command:
+| Key            | Action                                      |
+| :------------- | :------------------------------------------ |
+| `q`            | Quit                                        |
+| `w`            | Force Sync                                  |
+| `↑` / `k`      | Navigate Up                                 |
+| `↓` / `j`      | Navigate Down                               |
+| `←` / `h`      | Back / Switch Panels                        |
+| `→` / `l`      | Enter Subtasks                              |
+| `Shift + K`    | Move Task Up                                |
+| `Shift + J`    | Move Task Down                              |
+| `o`            | Add new task/list                           |
+| `d`            | Delete item                                 |
+| `r`            | Rename item                                 |
+| `c`            | Toggle task completion                      |
+| `Shift + X`    | Clear Completed Tasks                       |
+| `a`            | Set Due Date                                |
+| `i`            | Edit Notes                                  |
+| `p`            | Paste deleted task                          |
+| `?`            | Toggle Help Menu                            |
 
-```bash
-tasks-tui
-```
-
-### Keyboard Shortcuts
-
-| Key          | Action                                  |
-| :----------- | :-------------------------------------- |
-| `q`          | Quit application                        |
-| `w`          | Write and Sync                          |
-| `↑` / `k`    | Move selection up                       |
-| `↓` / `j`    | Move selection down                     |
-| `←` / `h`    | Exit selection                          |
-| `→` / `l`    | Enter selection                         |
-| `o`          | Open new selection                      |
-| `d`          | Delete selection                        |
-| `r`          | Rename selection                        |
-| `c`          | Toggle task completion                  |
-| `a`          | Add due date            |
-| `i`          | Insert/view task note   |
-| `p`          | Paste from buffer       |
-| `?`          | Toggle Help                             |
 
 ### Task Status Symbols
 
-| Symbol            | Meaning                                                                                  |
-| :-----            | :--------------                                                                          |
-| `[ ]`             | Task needs action                                                                        |
-| `[X]`             | Task completed                                                                           |
-| `('Task Counts')` | Count of tasks/subtasks within (subtasks of subtasks do not display in web Google Tasks) |
+* `[ ]` : Pending
+* `[X]` : Completed
+* `*` : Has text Note
+* `(N)` : Number of direct subtasks
+* `[Upd: MM-DD HH:MM]` : Local time the task was last updated
 
-When you run the application for the first time, it will open a web browser and ask you to authorize the application to access your Google Tasks. After you authorize the application, it will create a `token.json` file in the `~/.gtask` directory. This file contains your access and refresh tokens, so you won't have to authorize the application every time you run it. (Occasionally your token might become expire, so just delete `token.json` from `~/.gtask` and rerun the application to reauthenticate!)
+## Known Limitations (Google Tasks API)
 
-## Contributing
+These are inherit limitations of the official Google Tasks API backend, not this app:
 
-Contributions are welcome! If you have any ideas, suggestions, or bug reports, please open an issue or submit a pull request.
+* **No Times on Due Dates**: The API strips specific hours/minutes off due dates, forcing them to midnight UTC. You can assign a day, but not a time.
+* **No Recurring Tasks**: The API does not allow 3rd party apps to create or manage recurring/repeating tasks.
+* **Subtask Display Limits**: The API allows infinitely deep subtasks (and this CLI app fully supports them). However, Google's official web/mobile apps will only display 1 level deep. 
 
 ## License
-
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+MIT License.

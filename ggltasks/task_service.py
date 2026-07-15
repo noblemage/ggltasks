@@ -15,8 +15,6 @@ class TaskService:
         self._modified_task_ids: dict[str, set] = {}
         self._lock = threading.RLock()
 
-        if not self.data or not self.data.get('task_lists'):
-            self.sync_from_google()
 
         self.active_list_id = self._get_default_task_list_id()
 
@@ -380,7 +378,8 @@ class TaskService:
         if not list_id:
             return None
         try:
-            due_date_rfc3339 = isoparse(date_str).isoformat() + 'Z'
+            dt = isoparse(date_str)
+            due_date_rfc3339 = dt.isoformat() + ('Z' if dt.tzinfo is None else '')
         except (ParserError, ValueError):
             return None
         with self._lock:
@@ -436,3 +435,80 @@ class TaskService:
                     self.dirty = True
                     return True
         return None
+
+    def get_tasks_due_today(self):
+        from datetime import date
+        today = date.today()
+        result = []
+        with self._lock:
+            for task_list in self.data.get('task_lists', []):
+                if task_list.get('deleted'):
+                    continue
+                list_id = task_list['id']
+                list_title = task_list.get('title', '')
+                for task in self.data['tasks'].get(list_id, []):
+                    if task.get('deleted') or task.get('parent') or task.get('status') == 'completed':
+                        continue
+                    if 'due' in task:
+                        try:
+                            if isoparse(task['due']).date() == today:
+                                result.append({**task, '_list_title': list_title, '_list_id': list_id})
+                        except (ValueError, Exception):
+                            pass
+        return result
+
+    def clear_completed_tasks(self, list_id):
+        if not list_id:
+            return None
+        def do_clear():
+            try:
+                self.service.tasks().clear(tasklist=list_id).execute()
+            except Exception:
+                pass
+        threading.Thread(target=do_clear, daemon=True).start()
+        with self._lock:
+            tasks = self.data['tasks'].get(list_id, [])
+            self.data['tasks'][list_id] = [t for t in tasks if t.get('status') != 'completed']
+        self.dirty = True
+        return True
+
+    def move_task(self, list_id, task_id, previous_id=None, parent_id=None):
+        if not list_id or not task_id:
+            return None
+        
+        def do_move():
+            try:
+                kwargs = {'tasklist': list_id, 'task': task_id}
+                if previous_id: kwargs['previous'] = previous_id
+                if parent_id: kwargs['parent'] = parent_id
+                self.service.tasks().move(**kwargs).execute()
+            except Exception:
+                pass
+
+        if not task_id.startswith('temp_'):
+            threading.Thread(target=do_move, daemon=True).start()
+        
+        with self._lock:
+            tasks = self.data['tasks'].get(list_id, [])
+            task_idx = next((i for i, t in enumerate(tasks) if t['id'] == task_id), -1)
+            if task_idx == -1: return None
+            
+            task = tasks.pop(task_idx)
+            if parent_id:
+                task['parent'] = parent_id
+            else:
+                task.pop('parent', None)
+            
+            insert_idx = 0
+            if previous_id:
+                prev_idx = next((i for i, t in enumerate(tasks) if t['id'] == previous_id), -1)
+                if prev_idx != -1:
+                    insert_idx = prev_idx + 1
+            elif parent_id:
+                parent_idx = next((i for i, t in enumerate(tasks) if t['id'] == parent_id), -1)
+                if parent_idx != -1:
+                    insert_idx = parent_idx + 1
+            
+            tasks.insert(insert_idx, task)
+        self.dirty = True
+        return True

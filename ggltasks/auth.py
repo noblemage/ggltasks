@@ -5,13 +5,13 @@ from google.auth.transport.requests import Request
 
 SCOPES = ['https://www.googleapis.com/auth/tasks']
 HOME_DIR = os.path.expanduser('~')
-GTASK_DIR = os.path.join(HOME_DIR, '.gtask')
-TOKEN_PATH = os.path.join(GTASK_DIR, 'token.json')
-CLIENT_SECRETS_PATH = os.path.join(GTASK_DIR, 'client_secrets.json')
+GGLTASKS_DIR = os.path.join(HOME_DIR, '.ggltasks')
+TOKEN_PATH = os.path.join(GGLTASKS_DIR, 'token.json')
+CLIENT_SECRETS_PATH = os.path.join(GGLTASKS_DIR, 'client_secrets.json')
 
 
 def _ensure_dir_exists():
-    os.makedirs(GTASK_DIR, exist_ok=True)
+    os.makedirs(GGLTASKS_DIR, exist_ok=True)
 
 
 def get_credentials():
