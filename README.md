@@ -11,7 +11,7 @@ A lightning-fast, robust TUI for Google Tasks, built for terminal power users.
 
 ## Screenshots
 
-<img width="1496" height="951" alt="Image" src="https://github.com/user-attachments/assets/81a03c40-e630-4dbf-b736-c24c8b818b81" />
+![Screenshot](https://github.com/user-attachments/assets/81a03c40-e630-4dbf-b736-c24c8b818b81)
 
 ## Installation
 
