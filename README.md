@@ -25,33 +25,20 @@ Google requires you to generate a personal "Client Secret" to access your data s
 5. Click **+ CREATE CREDENTIALS** → **OAuth client ID**. *(Choose "Desktop app" as the Application type).*
 6. Download the JSON file and rename it exactly to `client_secrets.json`.
 
-### Step 2: Install the App
+### Step 2: Install and Run
 
-**For Linux / macOS:**
-1. Create a hidden config folder in your terminal:
-   ```bash
-   mkdir ~/.ggltasks
-   ```
-2. Move your `client_secrets.json` file into `~/.ggltasks`.
-
-**For Windows:**
-1. Create a config folder in Command Prompt/PowerShell:
-   ```powershell
-   mkdir ~\.ggltasks
-   ```
-   *(Or manually create a `.ggltasks` folder in your `C:\Users\YourUsername` directory using File Explorer).*
-2. Move your `client_secrets.json` file into that folder.
-
-**Install and Run (All Platforms):**
-3. Install via pip:
+1. Install via pip:
    ```bash
    pip install ggltasks
    ```
-4. Run the app:
+2. Run the app:
    ```bash
    ggltasks
    ```
-*Note: The first time you run it, a browser window will pop up asking you to log in to your Google Account. A local token is saved so you only have to do this once.*
+3. The app will automatically create the `.ggltasks` config folder in your home directory and give you instructions on where to place your `client_secrets.json` file.
+4. Move your `client_secrets.json` file into that folder and run `ggltasks` again!
+
+*Note: The first time it successfully connects, a browser window will pop up asking you to log in to your Google Account. A local token is saved so you only have to do this once.*
 
 ## Usage
 
