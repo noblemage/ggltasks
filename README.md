@@ -1,5 +1,10 @@
 # ggltasks - Google Tasks TUI
 
+[![PyPI version](https://img.shields.io/pypi/v/ggltasks)](https://pypi.org/project/ggltasks/)
+[![PyPI downloads](https://img.shields.io/pypi/dm/ggltasks)](https://pypi.org/project/ggltasks/)
+[![License](https://img.shields.io/pypi/l/ggltasks)](https://github.com/noblemage/ggltasks/blob/main/LICENSE)
+[![Python versions](https://img.shields.io/pypi/pyversions/ggltasks)](https://pypi.org/project/ggltasks/)
+
 A lightning-fast, robust TUI for Google Tasks, built for terminal power users.
 
 ## Features
