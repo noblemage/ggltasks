@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "tasks-tui-app"
+name = "ggltasks"
 version = "0.1.7"
 description = "A command-line TUI for managing Google Tasks."
 readme = "README.md"
