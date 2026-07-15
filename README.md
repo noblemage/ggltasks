@@ -26,11 +26,23 @@ Google requires you to generate a personal "Client Secret" to access your data s
 6. Download the JSON file and rename it exactly to `client_secrets.json`.
 
 ### Step 2: Install the App
-1. Create a hidden config folder:
+
+**For Linux / macOS:**
+1. Create a hidden config folder in your terminal:
    ```bash
    mkdir ~/.ggltasks
    ```
 2. Move your `client_secrets.json` file into `~/.ggltasks`.
+
+**For Windows:**
+1. Create a config folder in Command Prompt/PowerShell:
+   ```powershell
+   mkdir ~\.ggltasks
+   ```
+   *(Or manually create a `.ggltasks` folder in your `C:\Users\YourUsername` directory using File Explorer).*
+2. Move your `client_secrets.json` file into that folder.
+
+**Install and Run (All Platforms):**
 3. Install via pip:
    ```bash
    pip install ggltasks
