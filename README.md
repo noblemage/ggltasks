@@ -1,4 +1,4 @@
-# Tasks TUI
+# ggltakss - Google Tasks TUI
 
 A simple, fast, and intuitive Terminal User Interface (TUI) for Google Tasks.
 
