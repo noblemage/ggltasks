@@ -379,8 +379,7 @@ def _trigger_initial_sync(service, ui_manager):
         daemon=True,
     ).start()
 
-def main_loop(stdscr):
-    task_service = TaskService()
+def main_loop(stdscr, task_service):
     ui_manager = UIManager(stdscr)
     app_state = AppState(task_service)
 
@@ -435,7 +434,8 @@ def main_loop(stdscr):
 
 def cli():
     try:
-        wrapper(main_loop)
+        task_service = TaskService()
+        wrapper(main_loop, task_service)
     except FileNotFoundError as e:
         print(e, file=sys.stderr)
     except Exception as e:
