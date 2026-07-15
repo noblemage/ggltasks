@@ -5,10 +5,10 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ggltasks"
 version = "0.1.7"
-description = "A command-line TUI for managing Google Tasks."
+description = "TUI for Google Tasks"
 readme = "README.md"
 authors = [
-    {name = "Huy Pham", email = "huyquangpham2005@gmai.com"},
+    {name = "noble", email = "noblegithub@poptortpop.anonaddy.me"},
 ]
 license = "MIT"
 classifiers = [
@@ -19,12 +19,12 @@ classifiers = [
 dependencies = [
     "google-api-python-client",
     "google-auth-oauthlib",
-    "google-auth-httplib2", # This line MUST NOT have a comma at the end!
+    "google-auth-httplib2" # This line MUST NOT have a comma at the end!
 ]
 
 [project.scripts]
 # This line (tasks-tui = ...) is likely what was failing to parse.
-tasks-tui = "tasks_tui.main:cli"
+ggltasks = "tasks_tui.main:cli"
 
 [tool.setuptools.packages.find]
 where = ["."]
