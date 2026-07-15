@@ -10,7 +10,8 @@ readme = "README.md"
 authors = [
     {name = "Noble Alex", email = "noblejosephalex@gmail.com"},
 ]
-license = {text = "MIT"}
+license = "MIT"
+requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",

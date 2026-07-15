@@ -28,7 +28,8 @@ Google requires you to generate a personal "Client Secret" to access your data s
 3. Search for **Google Tasks API** and click **Enable**.
 4. Go to **APIs & Services → Credentials**.
 5. Click **+ CREATE CREDENTIALS** → **OAuth client ID**. *(Choose "Desktop app" as the Application type).*
-6. Download the JSON file and rename it exactly to `client_secrets.json`.
+6. You may need to configure the **OAuth consent screen** first — just set it to "External" and add your Google account as a test user.
+7. Download the JSON file and rename it exactly to `client_secrets.json`.
 
 ### Step 2: Install and Run
 
@@ -78,7 +79,7 @@ Google requires you to generate a personal "Client Secret" to access your data s
 
 ## Known Limitations (Google Tasks API)
 
-These are inherit limitations of the official Google Tasks API backend, not this app:
+These are inherent limitations of the official Google Tasks API backend, not this app:
 
 * **No Times on Due Dates**: The API strips specific hours/minutes off due dates, forcing them to midnight UTC. You can assign a day, but not a time.
 * **No Recurring Tasks**: The API does not allow 3rd party apps to create or manage recurring/repeating tasks.
