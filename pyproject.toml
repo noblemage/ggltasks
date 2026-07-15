@@ -10,7 +10,7 @@ readme = "README.md"
 authors = [
     {name = "noble", email = "noblegithub@poptortpop.anonaddy.me"},
 ]
-license = "MIT"
+license = {text = "MIT"}
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
@@ -19,11 +19,12 @@ classifiers = [
 dependencies = [
     "google-api-python-client",
     "google-auth-oauthlib",
-    "google-auth-httplib2" # This line MUST NOT have a comma at the end!
+    "google-auth-httplib2",
+    "uni-curses",
+    "python-dateutil",
 ]
 
 [project.scripts]
-# This line (tasks-tui = ...) is likely what was failing to parse.
 ggltasks = "tasks_tui.main:cli"
 
 [tool.setuptools.packages.find]

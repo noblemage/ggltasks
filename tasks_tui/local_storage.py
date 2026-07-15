@@ -1,21 +1,16 @@
-
 import os
 import json
 
-# Get the user's home directory
 HOME_DIR = os.path.expanduser('~')
-# Define the directory to store the data
 GTASK_DIR = os.path.join(HOME_DIR, '.gtask')
-# Define the storage file path
 STORAGE_FILE = os.path.join(GTASK_DIR, 'local_tasks.json')
 
+
 def _ensure_dir_exists():
-    """Ensures that the .gtask directory exists."""
-    if not os.path.exists(GTASK_DIR):
-        os.makedirs(GTASK_DIR)
+    os.makedirs(GTASK_DIR, exist_ok=True)
+
 
 def load_data():
-    """Loads task data from the local JSON storage file."""
     _ensure_dir_exists()
     if not os.path.exists(STORAGE_FILE):
         return {'task_lists': [], 'tasks': {}}
@@ -25,12 +20,18 @@ def load_data():
     except (json.JSONDecodeError, IOError):
         return {'task_lists': [], 'tasks': {}}
 
+
 def save_data(data):
-    """Saves task data to the local JSON storage file."""
     _ensure_dir_exists()
+    tmp_path = STORAGE_FILE + '.tmp'
     try:
-        with open(STORAGE_FILE, 'w') as f:
+        with open(tmp_path, 'w') as f:
             json.dump(data, f, indent=4)
+        os.replace(tmp_path, STORAGE_FILE)
+        return True
     except IOError:
-        # Handle cases where the file cannot be written
-        pass
+        try:
+            os.remove(tmp_path)
+        except OSError:
+            pass
+        return False
