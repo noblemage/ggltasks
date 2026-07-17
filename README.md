@@ -17,6 +17,7 @@ A lightning-fast, robust TUI for Google Tasks, built for terminal power users.
 ## Screenshots
 
 ![Screenshot](https://raw.githubusercontent.com/noblemage/ggltasks/main/Screenshot.png)
+<img width="1336" height="706" alt="Image" src="https://github.com/user-attachments/assets/d05d1c5d-a3be-440b-8412-5cc7d2bd6ef1" />
 
 ## Installation
 
